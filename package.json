@@ -1,0 +1,25 @@
+{
+  "name": "newsai-daily-report",
+  "version": "1.0.0",
+  "description": "Daily AI model intelligence report generator — runs at 7AM via cron, searches via Brave Search API, outputs HTML",
+  "main": "generate-report.js",
+  "scripts": {
+    "generate": "node generate-report.js",
+    "daily-job": "node daily-job.js",
+    "daily-job:dry": "node daily-job.js --dry",
+    "send-email": "node send-email.js",
+    "setup-cron": "node setup-cron.js",
+    "remove-cron": "node setup-cron.js --remove",
+    "serve": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.15",
+    "puppeteer": "^25.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}
