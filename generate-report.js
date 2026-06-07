@@ -326,6 +326,183 @@ async function searchTarget(targetKey) {
 }
 
 // ---------------------------------------------------------------------------
+// DeepSeek API — Translate results to Italian
+// ---------------------------------------------------------------------------
+
+function getDeepSeekKey() {
+  return process.env.DEEPSEEK_API_KEY || "";
+}
+
+function callDeepSeek(prompt) {
+  return new Promise(function (resolve, reject) {
+    var apiKey = getDeepSeekKey();
+    if (!apiKey) {
+      reject(new Error("DEEPSEEK_API_KEY not set"));
+      return;
+    }
+
+    var body = JSON.stringify({
+      model: "deepseek-chat",
+      messages: [
+        {
+          role: "system",
+          content: "Sei un traduttore professionista. Traduci dall'inglese all'italiano. Rispondi SOLO con il testo tradotto, senza commenti o prefazioni. Mantieni il significato tecnico originale, nomi propri di aziende e modelli (es. DeepSeek, GPT, Claude, ecc.) NON vanno tradotti. Migliora leggermente la grammatica se necessario, ma non cambiare il senso del testo.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.1,
+      max_tokens: 4000,
+    });
+
+    var options = {
+      hostname: "api.deepseek.com",
+      path: "/v1/chat/completions",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + apiKey,
+      },
+    };
+
+    var req = https.request(options, function (res) {
+      var chunks = [];
+      res.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+      res.on("end", function () {
+        try {
+          var data = Buffer.concat(chunks).toString("utf-8");
+          var json = JSON.parse(data);
+          if (json.error) {
+            reject(new Error("DeepSeek API error: " + (json.error.message || JSON.stringify(json.error))));
+          } else if (json.choices && json.choices.length > 0) {
+            resolve(json.choices[0].message.content.trim());
+          } else {
+            reject(new Error("DeepSeek unexpected response: " + data.slice(0, 200)));
+          }
+        } catch (e) {
+          reject(new Error("DeepSeek JSON parse error: " + e.message));
+        }
+      });
+      res.on("error", function (err) {
+        reject(err);
+      });
+    });
+
+    req.on("error", function (err) {
+      reject(err);
+    });
+
+    req.write(body);
+    req.end();
+  });
+}
+
+async function translateResults(sections) {
+  var apiKey = getDeepSeekKey();
+  if (!apiKey) {
+    console.log("\n  ℹ️  DEEPSEEK_API_KEY not set — skipping translation");
+    return;
+  }
+
+  // Collect all items that need translation
+  var itemsToTranslate = [];
+  var itemMap = []; // maps flat index -> { sectionIdx, resultIdx, field: 'title'|'description' }
+
+  for (var si = 0; si < sections.length; si++) {
+    var results = sections[si].results || [];
+    for (var ri = 0; ri < results.length; ri++) {
+      var r = results[ri];
+      if (r.title && !isItalian(r.title)) {
+        itemsToTranslate.push("---\nTITLE: " + r.title + "\nDESCRIPTION: " + (r.description || ""));
+        itemMap.push({ sectionIdx: si, resultIdx: ri, key: "title_desc" });
+      }
+    }
+  }
+
+  if (itemsToTranslate.length === 0) {
+    console.log("\n  ℹ️  Nothing to translate (all content already in Italian)");
+    return;
+  }
+
+  console.log("\n  Translating " + itemsToTranslate.length + " items via DeepSeek API...");
+
+  // Process in batches to avoid token limits (max ~10 items per batch)
+  var BATCH_SIZE = 10;
+  var batches = [];
+  for (var b = 0; b < itemsToTranslate.length; b += BATCH_SIZE) {
+    batches.push({
+      items: itemsToTranslate.slice(b, b + BATCH_SIZE),
+      map: itemMap.slice(b, b + BATCH_SIZE),
+    });
+  }
+
+  for (var bi = 0; bi < batches.length; bi++) {
+    var batch = batches[bi];
+    var batchPrompt = "Traduci i seguenti testi dall'inglese all'italiano. Per ogni blocco separato da '---', traducili TITLE e DESCRIPTION. Mantieni i nomi di modelli e aziende (DeepSeek, Claude, Gemini, GPT, ecc.) non tradotti. Rispondi con la stessa struttura:\n\n" + batch.items.join("\n\n");
+
+    try {
+      var translated = await callDeepSeek(batchPrompt);
+      // Parse the translated blocks
+      var translatedBlocks = translated.split("---").filter(function (b) {
+        return b.trim().length > 0;
+      });
+
+      for (var ti = 0; ti < translatedBlocks.length && ti < batch.map.length; ti++) {
+        var block = translatedBlocks[ti];
+        var titleMatch = block.match(/(?:TITLE|TITOLO):\s*(.+?)(?:\n|$)/i);
+        var descMatch = block.match(/(?:DESCRIPTION|DESCRIZIONE):\s*(.+?)(?:\n|$)/i);
+
+        var info = batch.map[ti];
+        if (titleMatch) {
+          sections[info.sectionIdx].results[info.resultIdx].title = titleMatch[1].trim();
+        }
+        if (descMatch) {
+          sections[info.sectionIdx].results[info.resultIdx].description = descMatch[1].trim();
+        }
+      }
+      console.log("    Batch " + (bi + 1) + "/" + batches.length + " translated ✓");
+    } catch (err) {
+      console.error("    ⚠️  Translation batch " + (bi + 1) + "/" + batches.length + " failed: " + err.message);
+    }
+
+    // Small delay between batches
+    if (bi < batches.length - 1) {
+      await new Promise(function (r) {
+        return setTimeout(r, 500);
+      });
+    }
+  }
+
+  console.log("  Translation completed ✓");
+}
+
+function isItalian(text) {
+  // Simple heuristic: check for common Italian words/patterns
+  var italianPatterns = [
+    /\b(del|della|degli|delle|dei)\b/i,
+    /\b(il|lo|la|gli|le)\b/i,
+    /\b(un|uno|una)\b/i,
+    /\b(con|per|tra|fra|su)\b/i,
+    /\b(che|chi|come|dove|quando|quanto)\b/i,
+    /\b(non|si|ci|ne|se)\b/i,
+    /\b(più|molto|poco|anche|solo)\b/i,
+    /\b(e|o|ma|perché|perche)\b/i,
+    /\b(questo|quello|questa|quella)\b/i,
+    /\b(sono|hai|ha|hanno|era|stato)\b/i,
+    /\b[àèéìòù]/i,
+  ];
+  var matchCount = 0;
+  for (var i = 0; i < italianPatterns.length; i++) {
+    if (italianPatterns[i].test(text)) matchCount++;
+  }
+  return matchCount >= 2;
+}
+
+// ---------------------------------------------------------------------------
 // HTML report builder
 // ---------------------------------------------------------------------------
 
@@ -515,6 +692,11 @@ async function main() {
       results: [],
     });
   }
+
+  // Translate results to Italian via DeepSeek API
+  console.log("\n--- Translation Step ---");
+  await translateResults(sections);
+  console.log("------------------------\n");
 
   // Build HTML with data tables
   var dataTables = [

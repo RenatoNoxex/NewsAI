@@ -32,6 +32,7 @@ jobs:
       - name: Generate Report
         env:
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: node generate-report.js
 
       - name: Send Email (with HTML body + PDF attachment fallback)
