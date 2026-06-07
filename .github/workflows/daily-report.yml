@@ -6,12 +6,13 @@ on:
     - cron: "30 5 * * *" # 7:30 CET = 5:30 UTC (backup)
   workflow_dispatch: # Manual trigger for testing
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   generate-and-send:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
