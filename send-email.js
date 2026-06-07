@@ -1,20 +1,37 @@
 #!/usr/bin/env node
 /**
- * NewsAI — Email Sender (with PDF attachment)
+ * NewsAI — Email Sender (with PDF attachment + full HTML inline body)
  *
  * Converts the latest HTML report to PDF via Puppeteer, then
- * sends it as an email attachment via nodemailer.
+ * sends it as an email with the FULL report content in the body
+ * AND as a PDF attachment.
+ *
+ * If Puppeteer/PDF fails, the email is still sent with the HTML inline.
  *
  * Usage:
- *   node send-email.js                     — send latest report as PDF
+ *   node send-email.js                     — send report (HTML body + PDF attach)
  *   node send-email.js --to user@test.it   — override recipient
- *   node send-email.js --no-pdf            — send HTML inline (no attachment)
+ *   node send-email.js --no-pdf            — send HTML inline only (no PDF)
  */
 
 const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
-const puppeteer = require("puppeteer");
+
+// Lazy-load puppeteer only if needed
+let puppeteer = null;
+function getPuppeteer() {
+  if (!puppeteer) {
+    try {
+      puppeteer = require("puppeteer");
+    } catch (e) {
+      console.warn("Puppeteer not available, PDF generation will be skipped.");
+      console.warn("Run: npm install puppeteer");
+      return null;
+    }
+  }
+  return puppeteer;
+}
 
 const CONFIG_PATH = path.join(__dirname, "config.json");
 let emailCfg;
@@ -77,33 +94,65 @@ if (toIdx !== -1 && args.length > toIdx + 1) {
 }
 
 // ---------------------------------------------------------------------------
-// HTML -> PDF via Puppeteer
+// Read the HTML report content
+// ---------------------------------------------------------------------------
+
+const reportHtmlContent = fs.readFileSync(reportPath, "utf-8");
+
+// ---------------------------------------------------------------------------
+// HTML -> PDF via Puppeteer (graceful fallback on failure)
 // ---------------------------------------------------------------------------
 
 async function htmlToPdf(htmlPath) {
+  const puppeteerMod = getPuppeteer();
+  if (!puppeteerMod) {
+    console.log("Skipping PDF — Puppeteer not installed.");
+    return null;
+  }
+
   console.log("Converting HTML to PDF...");
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+  let browser;
   try {
+    browser = await puppeteerMod.launch({
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+      ],
+    });
     const page = await browser.newPage();
     const htmlContent = fs.readFileSync(htmlPath, "utf-8");
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    await page.setContent(htmlContent, {
+      waitUntil: "networkidle0",
+      timeout: 30000,
+    });
     const pdfBuffer = await page.pdf({
       format: "A4",
       margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" },
       printBackground: true,
     });
-    console.log("PDF generated: " + (pdfBuffer.length / 1024).toFixed(1) + " KB");
+    const sizeKB = (pdfBuffer.length / 1024).toFixed(1);
+    console.log("PDF generated: " + sizeKB + " KB");
+    if (pdfBuffer.length < 1000) {
+      console.warn("WARNING: PDF is suspiciously small (" + sizeKB + " KB) — may be empty.");
+      return null;
+    }
     return pdfBuffer;
+  } catch (err) {
+    console.error("PDF generation failed: " + err.message);
+    console.error("Email will be sent with HTML body only (no PDF attachment).");
+    return null;
   } finally {
-    await browser.close();
+    if (browser) {
+      try { await browser.close(); } catch (e) { /* ignore */ }
+    }
   }
 }
 
 // ---------------------------------------------------------------------------
-// Send email
+// Send email with FULL report HTML in the body
 // ---------------------------------------------------------------------------
 
 async function send() {
@@ -117,9 +166,10 @@ async function send() {
   const subject = "📅 Report Aggiornamenti AI — " + dateStr;
 
   console.log("Sending email...");
-  console.log("  From: " + emailCfg.from);
-  console.log("  To:   " + to);
+  console.log("  From:    " + emailCfg.from);
+  console.log("  To:      " + to);
   console.log("  Subject: " + subject);
+  console.log("  HTML size: " + (reportHtmlContent.length / 1024).toFixed(1) + " KB");
 
   const transporter = nodemailer.createTransport({
     host: emailCfg.smtp.host,
@@ -131,30 +181,33 @@ async function send() {
     },
   });
 
+  // Use the full report HTML as the email body
   const mailOptions = {
     from: '"NewsAI Daily" <' + emailCfg.from + ">",
     to: to,
     subject: subject,
-    html:
-      '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">' +
-      '<h2 style="color:#0047AB;">📅 Report Aggiornamenti AI — ' +
-      dateStr +
-      "</h2>" +
-      "<p>Il report quotidiano sui modelli AI è allegato in formato PDF.</p>" +
-      "<p>Modelli monitorati: DeepSeek, Kimi, Qwen, Claude, Gemini + panoramica globale.</p>" +
-      '<p style="color:#888;font-size:0.85em;">NewsAI Daily — generazione automatica alle 7:00 CET</p>' +
-      "</div>",
+    html: reportHtmlContent,
   };
 
+  // Try to attach PDF (non-blocking — if it fails, email still goes out with HTML)
   if (!skipPDF) {
-    const pdfBuffer = await htmlToPdf(reportPath);
-    mailOptions.attachments = [
-      {
-        filename: "report-ai-" + dateStr.replace(/\//g, "-") + ".pdf",
-        content: pdfBuffer,
-        contentType: "application/pdf",
-      },
-    ];
+    try {
+      const pdfBuffer = await htmlToPdf(reportPath);
+      if (pdfBuffer && pdfBuffer.length > 1000) {
+        mailOptions.attachments = [
+          {
+            filename: "report-ai-" + dateStr.replace(/\//g, "-") + ".pdf",
+            content: pdfBuffer,
+            contentType: "application/pdf",
+          },
+        ];
+        console.log("PDF attached to email.");
+      } else {
+        console.log("No valid PDF to attach — sending HTML-only email.");
+      }
+    } catch (err) {
+      console.error("PDF step threw exception, continuing with HTML-only: " + err.message);
+    }
   }
 
   try {

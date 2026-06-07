@@ -184,7 +184,21 @@ function braveSearch(query) {
 }
 
 function extractResults(apiResponse) {
-  if (!apiResponse || !apiResponse.web || !apiResponse.web.results) return [];
+  // Check for API-level errors
+  if (apiResponse && apiResponse.error) {
+    var errMsg = apiResponse.error.message || JSON.stringify(apiResponse.error);
+    console.error("    ⚠️  Brave API error: " + errMsg);
+    if (apiResponse.error.code === "SUBSCRIPTION_TOKEN_INVALID") {
+      console.error("    💡 The API key seems invalid or expired. Get a free key at https://brave.com/search/api/");
+    }
+    return [];
+  }
+  if (!apiResponse || !apiResponse.web || !apiResponse.web.results) {
+    // Log raw response type to help debugging
+    var respType = apiResponse ? Object.keys(apiResponse).join(", ") : "null/undefined";
+    console.error("    ⚠️  Unexpected API response. Type keys: " + respType);
+    return [];
+  }
   return apiResponse.web.results.map(function (r) {
     return {
       title: (r.title || "").replace(/<[^>]*>/g, ""),
@@ -509,9 +523,9 @@ async function main() {
       rows: [
         {
           Modello: "DeepSeek V4 Pro",
-          Input: "$0.0036",
+          Input: "$0.435",
           Output: "$0.87",
-          Note: "Taglio 75% (maggio 2026)",
+          Note: "Taglio 75% permanente (maggio 2026)",
         },
         {
           Modello: "Gemini 3.5 Flash",
@@ -521,9 +535,9 @@ async function main() {
         },
         {
           Modello: "Claude Opus 4.8",
-          Input: "$15.00",
-          Output: "$75.00",
-          Note: "Lancio 28 maggio 2026",
+          Input: "$5.00",
+          Output: "$25.00",
+          Note: "Modello predefinito piani premium",
         },
         {
           Modello: "Qwen 3.7 Max",
@@ -553,6 +567,26 @@ async function main() {
   var outDir = path.join(__dirname, CONFIG.report.outputDir);
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
   var outPath = path.join(outDir, CONFIG.report.outputFile);
+
+  // SAFETY GUARD: Don't overwrite a good report with an empty one
+  var totalResults = sections.reduce(function(acc, s) { return acc + (s.results ? s.results.length : 0); }, 0);
+  var prevReportExists = fs.existsSync(outPath);
+  var prevReportSize = 0;
+  if (prevReportExists) {
+    prevReportSize = fs.statSync(outPath).size;
+  }
+
+  if (totalResults === 0) {
+    console.error("\n⚠️  WARNING: 0 results obtained from all queries!");
+    console.error("   Possible causes: invalid/missing API key, network error, or rate limiting.");
+    if (prevReportExists && prevReportSize > 5000) {
+      console.error("   Existing report found (" + (prevReportSize / 1024).toFixed(1) + " KB) — keeping it, NOT overwriting with empty report.");
+      console.error("   Fix the API key issue, then re-run to regenerate.");
+      return outPath; // Return path but don't write empty report
+    }
+    console.error("   No valid previous report — writing empty report (will show 'No updates' sections).");
+  }
+
   fs.writeFileSync(outPath, html, "utf-8");
   console.log("\nReport saved: " + outPath);
 

@@ -3,12 +3,15 @@ name: Daily AI Report (7:00 AM CET)
 on:
   schedule:
     - cron: "0 5 * * *" # 7:00 CET = 5:00 UTC
+    - cron: "30 5 * * *" # 7:30 CET = 5:30 UTC (backup)
   workflow_dispatch: # Manual trigger for testing
 
 jobs:
   generate-and-send:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
@@ -17,17 +20,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          npx puppeteer browsers install chrome || echo "Chromium install skipped (optional for PDF)"
 
       - name: Generate Report
         env:
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
         run: node generate-report.js
 
-      - name: Send Email
+      - name: Send Email (with HTML body + PDF attachment fallback)
         env:
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -35,6 +42,7 @@ jobs:
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          PUPPETEER_EXECUTABLE_PATH: ${{ env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome' }}
         run: node send-email.js
 
       - name: Upload report as artifact
