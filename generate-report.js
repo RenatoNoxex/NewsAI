@@ -416,7 +416,7 @@ async function translateResults(sections) {
     var results = sections[si].results || [];
     for (var ri = 0; ri < results.length; ri++) {
       var r = results[ri];
-      if (r.title && !isItalian(r.title)) {
+      if (r.title) {
         itemsToTranslate.push("---\nTITLE: " + r.title + "\nDESCRIPTION: " + (r.description || ""));
         itemMap.push({ sectionIdx: si, resultIdx: ri, key: "title_desc" });
       }
