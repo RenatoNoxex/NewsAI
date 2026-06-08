@@ -1,3 +1,4 @@
+# Workflow GitHub Actions - invio email riepilogo quotidiano
 name: Invia Riepilogo Giornaliero
 
 on:
