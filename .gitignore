@@ -1,0 +1,23 @@
+# Jesi News — .gitignore
+
+# Credenziali e deploy (NON committare)
+.env
+scripts/deploy_aruba.py
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# SO metadata (macOS/Windows)
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PDF originali (possono essere grandi)
+data/*.pdf
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Jesi News</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏰</text></svg>">
+</head>
+<body data-page="admin">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">JE</div>
+        <div class="logo-text"><span>Jesi</span> News</div>
+      </a>
+      <div class="header-actions">
+        <span class="badge-date" id="date-badge"></span>
+        <a href="admin.html" style="color:white;text-decoration:none;font-size:13px;font-weight:500;padding:6px 12px;border:1px solid #C0392B;border-radius:6px;background:#C0392B;">➕ Admin</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- TOP BAR -->
+  <nav class="top-bar">
+    <div class="category-nav">
+      <a href="index.html">🏠 Home</a>
+      <a href="category.html?cat=urbanistica">🏗️ Urbanistica</a>
+      <a href="category.html?cat=cultura">🎭 Cultura</a>
+      <a href="category.html?cat=sport">⚽ Sport</a>
+      <a href="category.html?cat=sociale">🤝 Sociale</a>
+      <a href="category.html?cat=attualita">📰 Attualità</a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="container">
+    <div class="admin-page">
+      <h1>📦 Pannello di Amministrazione</h1>
+
+      <div id="upload-area" class="upload-area">
+        <span class="icon">📄</span>
+        <p><strong>Carica un nuovo report PDF</strong></p>
+        <p style="font-size:13px;color:#999;">Trascina il file qui o clicca per selezionarlo</p>
+        <br>
+        <button class="btn" id="upload-btn">Seleziona file PDF</button>
+        <input type="file" id="file-input" accept=".pdf" style="display:none;">
+      </div>
+
+      <div id="upload-result" class="upload-result"></div>
+
+      <div style="margin-top:40px;padding-top:30px;border-top:1px solid #e8e8e8;">
+        <h3 style="margin-bottom:16px;">📋 Istruzioni rapide</h3>
+        <ol style="color:#666;font-size:14px;line-height:2;">
+          <li>Posiziona il nuovo file PDF nella cartella <code>jesi/data/</code></li>
+          <li>Apri il terminale e naviga in <code>jesi/</code></li>
+          <li>Esegui: <code style="background:#f0f0f0;padding:2px 8px;border-radius:4px;">python scripts/parse_report.py "data/nome-file.pdf"</code></li>
+          <li>Ricarica la homepage per vedere le nuove news</li>
+        </ol>
+        <p style="margin-top:20px;font-size:13px;color:#999;">
+          💡 Lo script analizza il PDF, estrae titoli, descrizioni e fonti, 
+          e aggrega i nuovi articoli a quelli esistenti evitando duplicati.
+        </p>
+      </div>
+
+      <div style="margin-top:30px;padding-top:30px;border-top:1px solid #e8e8e8;">
+        <h3 style="margin-bottom:16px;">📊 Stato database</h3>
+        <p style="font-size:14px;color:#666;" id="db-status">Caricamento in corso...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p><strong>Jesi News</strong> — Aggiornamenti quotidiani dalla città di Jesi</p>
+    <p style="margin-top:6px;font-size:12px;">Notizie raccolte da fonti pubbliche · Pubblicato su www.exmu.it/iesi/</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+
+</body>
+</html>
