@@ -1,4 +1,4 @@
-# Workflow GitHub Actions - invio email riepilogo quotidiano con PDF
+# -  Workflow GitHub Actions - invio email riepilogo quotidiano con PDF
 name: Invia Riepilogo Giornaliero
 
 on:
@@ -28,6 +28,11 @@ jobs:
           sudo apt-get install -y -qq libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev libcairo2 2>&1 | tail -1
           pip install --quiet weasyprint
           python -c "from weasyprint import HTML; print('weasyprint OK')"
+
+      - name: Raccogli articoli dalle testate locali
+        env:
+          TZ: Europe/Rome
+        run: python scripts/scrape_news.py
 
       - name: Verifica file .env
         run: |
