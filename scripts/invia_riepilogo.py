@@ -139,10 +139,10 @@ def genera_riepilogo_html(data, giorni=1):
     articoli_recenti = []
     for a in articles:
         try:
-            data_art = datetime.strptime(a.get("date", ""), "%Y-%m-%d")
+            data_art = datetime.strptime(a.get("date", ""), "%Y-%m-%d").replace(tzinfo=TZ)
             if data_art >= data_limite:
                 articoli_recenti.append(a)
-        except ValueError:
+        except (ValueError, TypeError, Exception):
             pass
 
     # Se non ci sono articoli recenti, prendi gli ultimi 10
@@ -275,10 +275,10 @@ def genera_riepilogo_testo(data, giorni=1):
     articoli_recenti = []
     for a in articles:
         try:
-            data_art = datetime.strptime(a.get("date", ""), "%Y-%m-%d")
+            data_art = datetime.strptime(a.get("date", ""), "%Y-%m-%d").replace(tzinfo=TZ)
             if data_art >= data_limite:
                 articoli_recenti.append(a)
-        except ValueError:
+        except (ValueError, TypeError, Exception):
             pass
 
     if not articoli_recenti:
