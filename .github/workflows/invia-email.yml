@@ -24,7 +24,14 @@ jobs:
 
       - name: Installa dipendenze
         run: |
-          pip install --quiet zoneinfo 2>/dev/null || true
+          # zoneinfo è incluso in Python 3.9+ (usiamo 3.11)
+          python -c "from zoneinfo import ZoneInfo; print('zoneinfo OK')"
+
+      - name: Debug articles.json
+        run: |
+          echo "Contenuto articles.json (prime 300 righe):"
+          python -c "import json; d=json.load(open('data/articles.json')); print(f'Articoli: {len(d.get(\"articles\",[]))}')"
+          head -5 data/articles.json
 
       - name: Verifica file .env e articles.json
         run: |

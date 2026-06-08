@@ -133,7 +133,8 @@ def genera_riepilogo_html(data, giorni=1):
     meta = data.get("meta", {})
 
     oggi = adesso()
-    data_limite = oggi - timedelta(days=giorni)
+    # data_limite a mezzanotte del giorno (oggi - giorni)
+    data_limite = (oggi - timedelta(days=giorni)).replace(hour=0, minute=0, second=0, microsecond=0)
 
     # Filtra articoli recenti (di oggi o dei giorni specificati)
     articoli_recenti = []
@@ -270,7 +271,8 @@ def genera_riepilogo_testo(data, giorni=1):
     meta = data.get("meta", {})
 
     oggi = adesso()
-    data_limite = oggi - timedelta(days=giorni)
+    # data_limite a mezzanotte del giorno (oggi - giorni)
+    data_limite = (oggi - timedelta(days=giorni)).replace(hour=0, minute=0, second=0, microsecond=0)
 
     articoli_recenti = []
     for a in articles:
