@@ -1,0 +1,33 @@
+# Workflow GitHub Actions - Solo Scraping Articoli (senza invio email)
+name: Scraping Articoli
+
+on:
+  # Esecuzione manuale
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Raccogli articoli dalle testate locali
+        env:
+          TZ: Europe/Rome
+        run: python scripts/scrape_news.py
+
+      - name: Commit e push del file aggiornato
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/articles.json
+          git diff --staged --quiet || git commit -m "[auto] aggiornamento articoli da scraping"
+          git push
