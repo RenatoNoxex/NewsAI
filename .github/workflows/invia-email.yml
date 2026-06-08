@@ -1,4 +1,4 @@
- # Workflow GitHub Actions - invio email riepilogo quotidiano
+# Workflow GitHub Actions - invio email riepilogo quotidiano con PDF
 name: Invia Riepilogo Giornaliero
 
 on:
@@ -22,39 +22,23 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Installa dipendenze
+      - name: Installa dipendenze di sistema (weasyprint)
         run: |
-          # zoneinfo è incluso in Python 3.9+ (usiamo 3.11)
-          python -c "from zoneinfo import ZoneInfo; print('zoneinfo OK')"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev libcairo2 2>&1 | tail -1
+          pip install --quiet weasyprint
+          python -c "from weasyprint import HTML; print('weasyprint OK')"
 
-      - name: Debug articles.json
-        run: |
-          echo "Contenuto articles.json (prime 300 righe):"
-          python -c "import json; d=json.load(open('data/articles.json')); print(f'Articoli: {len(d.get(\"articles\",[]))}')"
-          head -5 data/articles.json
-
-      - name: Verifica file .env e articles.json
+      - name: Verifica file .env
         run: |
           echo "GMAIL_USER=${{ secrets.GMAIL_USER }}" > .env
           echo "GMAIL_APP_PASSWORD=${{ secrets.GMAIL_APP_PASSWORD }}" >> .env
           echo "MAIL_TO=${{ secrets.MAIL_TO }}" >> .env
 
-      - name: Invia email di riepilogo
+      - name: Invia email di riepilogo (con PDF allegato)
         env:
           TZ: Europe/Rome
-        run: |
-          set -x
-          python scripts/invia_riepilogo.py 2>&1 | tee output.log
-          echo "=== FINE LOG ==="
-          ls -la data/articles.json
-          python -c "import json; d=json.load(open('data/articles.json')); print('Articoli nel JSON:', len(d.get('articles',[])))"
-          
-      - name: Upload log per debug
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: workflow-debug-log
-          path: output.log
+        run: python scripts/invia_riepilogo.py
 
       - name: Log completamento
         if: always()

@@ -4,35 +4,33 @@ Jesi News - Invia Riepilogo Giornaliero via Gmail
 ==================================================
 Legge articles.json, prepara un riepilogo degli ultimi articoli
 e lo invia alla Gmail usando SMTP con App Password.
+Allega anche un PDF generato dall'HTML del riepilogo.
 
 Uso:
     python scripts/invia_riepilogo.py                        # invia riepilogo
     python scripts/invia_riepilogo.py --send-to "altra@email.com"  # a indirizzo specifico
     python scripts/invia_riepilogo.py --no-send              # solo preview a schermo
     python scripts/invia_riepilogo.py --test                 # invia email di test
+    python scripts/invia_riepilogo.py --no-pdf               # senza allegato PDF
 
 Configurazione:
     Aggiungi queste variabili al file .env:
         GMAIL_USER=tuaemail@gmail.com
         GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx    (App Password a 16 caratteri)
         MAIL_TO=tuaemail@gmail.com                 (destinatario, default = GMAIL_USER)
-
-    Come generare l'App Password Gmail:
-        1. Vai su https://myaccount.google.com/security
-        2. Attiva "Verifica in due passaggi" (se non l'hai già)
-        3. Vai su "Password per app"
-        4. Genera una password per "Posta" / "Windows Computer"
-        5. Usa quella password (16 lettere, senza spazi)
 """
 import os
 import sys
 import json
 import smtplib
 import email.utils
+import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
 # --- Fuso orario Italia (CEST = UTC+2) ---------------------------
 try:
@@ -70,6 +68,23 @@ def warn(msg):
 
 def error(msg):
     print(f"{Colors.RED}[ERR]{Colors.RESET} {msg}")
+
+# --- Genera PDF da HTML (opzionale, senza dipendenze esterne) ---
+def genera_pdf(html_body, output_path=None):
+    """Tenta di generare un PDF dall'HTML usando weasyprint se disponibile.
+    Se non disponibile, restituisce None (skip silenzioso)."""
+    try:
+        from weasyprint import HTML
+        if output_path is None:
+            output_path = tempfile.mktemp(suffix=".pdf")
+        HTML(string=html_body).write_pdf(output_path)
+        return output_path
+    except ImportError:
+        warn("weasyprint non installato, PDF non allegato")
+        return None
+    except Exception as e:
+        warn(f"Generazione PDF fallita: {e}")
+        return None
 
 
 # --- Carica .env -------------------------------------------------
@@ -130,7 +145,6 @@ def load_articles():
 def genera_riepilogo_html(data, giorni=1):
     """Crea un riepilogo HTML degli articoli degli ultimi N giorni."""
     articles = data.get("articles", [])
-    meta = data.get("meta", {})
 
     oggi = adesso()
     # data_limite a mezzanotte del giorno (oggi - giorni)
@@ -166,7 +180,6 @@ def genera_riepilogo_html(data, giorni=1):
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jesi News - Riepilogo Giornaliero</title>
 </head>
 <body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
@@ -222,9 +235,7 @@ def genera_riepilogo_html(data, giorni=1):
             html_parts.append(f"""
                     <tr>
                         <td style="background-color: #ffffff; padding: 16px 20px; border-bottom: 1px solid #e8e8e8;">
-                            <a href="https://www.exmu.it/iesi/article.html?id={a.get("id", "")}" style="color: #1a1a2e; text-decoration: none;">
-                                <strong style="font-size: 16px; color: #1a1a2e;">{a.get("title", "")}</strong>
-                            </a>
+                            <strong style="font-size: 16px; color: #1a1a2e;">{a.get("title", "")}</strong>
                             <p style="margin: 6px 0 0; font-size: 13px; color: #666666; line-height: 1.4;">
                                 {abstract}
                             </p>
@@ -268,7 +279,6 @@ def genera_riepilogo_html(data, giorni=1):
 def genera_riepilogo_testo(data, giorni=1):
     """Versione testo semplice (fallback)."""
     articles = data.get("articles", [])
-    meta = data.get("meta", {})
 
     oggi = adesso()
     # data_limite a mezzanotte del giorno (oggi - giorni)
@@ -320,24 +330,33 @@ def genera_riepilogo_testo(data, giorni=1):
 
 
 # --- Invia email --------------------------------------------------
-def invia_email(creds, html_body, testo_body, subject=None):
+def invia_email(creds, html_body, testo_body, subject=None, pdf_path=None):
     if subject is None:
         subject = f"Jesi News - Riepilogo del {adesso().strftime('%d/%m/%Y')}"
 
-    msg = MIMEMultipart("alternative")
+    msg = MIMEMultipart("mixed")
     msg["From"] = f"Jesi News <{creds['user']}>"
     msg["To"] = creds["mail_to"]
     msg["Subject"] = subject
     msg["Date"] = email.utils.formatdate(localtime=True)
     msg["Message-ID"] = email.utils.make_msgid()
 
-    # Versione testo (fallback)
-    parte_testo = MIMEText(testo_body, "plain", "utf-8")
-    msg.attach(parte_testo)
+    # Corpo dell'email (testo + HTML alternativi)
+    corpo = MIMEMultipart("alternative")
+    corpo.attach(MIMEText(testo_body, "plain", "utf-8"))
+    corpo.attach(MIMEText(html_body, "html", "utf-8"))
+    msg.attach(corpo)
 
-    # Versione HTML
-    parte_html = MIMEText(html_body, "html", "utf-8")
-    msg.attach(parte_html)
+    # Allega PDF se disponibile
+    if pdf_path and Path(pdf_path).exists():
+        with open(pdf_path, "rb") as pdf_file:
+            parte_pdf = MIMEBase("application", "pdf")
+            parte_pdf.set_payload(pdf_file.read())
+        encoders.encode_base64(parte_pdf)
+        nome_pdf = f"Jesi_News_Riepilogo_{adesso().strftime('%Y%m%d')}.pdf"
+        parte_pdf.add_header("Content-Disposition", f'attachment; filename="{nome_pdf}"')
+        msg.attach(parte_pdf)
+        ok(f"PDF allegato: {nome_pdf}")
 
     try:
         info(f"Connessione a Gmail SMTP...")
@@ -482,18 +501,28 @@ def main():
         mostra_preview(data)
         return
 
+    # -- Genera PDF (se non disabilitato) -------------------------
+    pdf_path = None
+    if "--no-pdf" not in sys.argv:
+        info("Generazione PDF in corso...")
+        pdf_path = genera_pdf(html_body)
+
     # -- Invia email ----------------------------------------------
     subject = f"Jesi News - Riepilogo del {adesso().strftime('%d/%m/%Y')}"
-    success = invia_email(creds, html_body, testo_body, subject=subject)
+    success = invia_email(creds, html_body, testo_body, subject=subject, pdf_path=pdf_path)
+
+    # -- Pulizia file temporanei ----------------------------------
+    if pdf_path and Path(pdf_path).exists():
+        try:
+            Path(pdf_path).unlink()
+        except Exception:
+            pass
 
     if success:
         print()
         print(f"{Colors.BOLD}{Colors.GREEN}============================================{Colors.RESET}")
         print(f"{Colors.BOLD}{Colors.GREEN}  Email inviata con successo!{Colors.RESET}")
         print(f"{Colors.BOLD}{Colors.GREEN}============================================{Colors.RESET}")
-        print()
-        ok("Per programmare l'invio automatico ogni giorno alle 07:00:")
-        info(f"  python scripts/invia_riepilogo.py --setup-task")
         print()
     else:
         sys.exit(1)
