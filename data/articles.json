@@ -3,8 +3,97 @@
     "title": "Jesi - Notizie dalla Città",
     "date": "2026-06-08",
     "generated_at": "2026-06-08T12:00:00.000000",
-    "source_file": ""
+    "source_file": "viverejesi.it"
   },
-  "articles": [],
+  "articles": [
+    {
+      "id": "1",
+      "title": "Prima Edison, ora il Viale. Per Jesi: \"Amministrazione contagiata da 'gattopardismo'?\"",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": "Il sindaco e la sua maggioranza a trazione Jesi in Comune rivendicano spesso nei propri interventi carichi di retorica, citazioni filosofiche e un linguaggio di difficile comprensione, la bontà delle proprie scelte. L'associazione Per Jesi critica duramente la gestione dei progetti Edison e Viale della Vittoria, parlando di gattopardismo amministrativo."
+    },
+    {
+      "id": "2",
+      "title": "Viale, il Comune chiarisce sulla diffida e dissente da Jesiamo: \"Godono nel far spendere soldi pubblici\"",
+      "date": "2026-06-08",
+      "category": "Urbanistica",
+      "source": "Vivere Jesi",
+      "abstract": "Di fronte all'ennesima strumentalizzazione, il Comune di Jesi chiarisce che la diffida presentata sulla gara europea per la riqualificazione del Viale della Vittoria è un atto dovuto. Dura la replica all'associazione Jesiamo: \"Godono nel far spendere soldi pubblici ai cittadini\"."
+    },
+    {
+      "id": "3",
+      "title": "Amazon, fisco e territorio, USB: \"I sindaci non possono restare in silenzio\"",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": "USB Lavoro Privato Ancona ritiene doveroso aprire una riflessione pubblica sul rapporto tra grandi multinazionali, fiscalità, lavoro e territorio. Il sindacato chiede ai sindaci del territorio di prendere posizione sulle politiche fiscali di Amazon e sull'impatto occupazionale."
+    },
+    {
+      "id": "4",
+      "title": "Viale della Vittoria, Rete Studenti Medi: \"Fischi a 16enne disgustosi\"",
+      "date": "2026-06-08",
+      "category": "Sociale",
+      "source": "Vivere Jesi",
+      "abstract": "La Rete Studenti Medi condanna l'episodio di body shaming avvenuto durante una partita al Viale della Vittoria, dove una ragazza di 16 anni è stata fischiata. L'associazione parla di un episodio disgustoso che richiama l'urgenza di un'educazione al rispetto nelle scuole e nello sport."
+    },
+    {
+      "id": "5",
+      "title": "Galà di beneficenza 2026 della Croce Rossa: una serata per abbattere le barriere",
+      "date": "2026-06-08",
+      "category": "Sociale",
+      "source": "Vivere Jesi",
+      "abstract": "La Croce Rossa Italiana di Jesi organizza il Galà di beneficenza 2026, una serata dedicata all'inclusione e all'abbattimento delle barriere architettoniche. L'evento si terrà presso il Teatro Pergolesi e vedrà la partecipazione di artisti del territorio."
+    },
+    {
+      "id": "6",
+      "title": "Pallamano: Chiaravalle, il futuro è ora. Il DS Tucci indica la via: \"Siamo pronti, presto sveleremo la rosa\"",
+      "date": "2026-06-08",
+      "category": "Sport",
+      "source": "Vivere Jesi",
+      "abstract": "Il direttore sportivo Davide Tucci traccia la rotta per la nuova stagione della Pallamano Chiaravalle. Con coach Andrea Guidotti confermato, la società annuncia una campagna acquisti mirata a riportare la squadra ai vertici del campionato di Serie A Gold."
+    },
+    {
+      "id": "7",
+      "title": "Pace, diritti umani e dignità: il libro di Asmae Dachan per un mondo che ascolta le voci delle donne",
+      "date": "2026-06-08",
+      "category": "Cultura",
+      "source": "Vivere Jesi",
+      "abstract": "La giornalista e fotografa Asmae Dachan presenta a Jesi il suo libro dedicato alla pace, ai diritti umani e alla dignità delle donne. Un viaggio attraverso le storie di donne che lottano quotidianamente in contesti di conflitto, con un messaggio di speranza e resilienza."
+    },
+    {
+      "id": "8",
+      "title": "La moda contro la violenza sulle donne: premio e borsa di studio a un'alunna dell'indirizzo Moda del Marconi-Pieralisi",
+      "date": "2026-06-08",
+      "category": "Cultura",
+      "source": "Vivere Jesi",
+      "abstract": "Primo premio e borsa di studio per un'alunna dell'istituto Marconi-Pieralisi di Jesi al concorso 'La moda contro la violenza sulle donne'. Il progetto, patrocinato dal Comune, ha visto gli studenti realizzare abiti ispirati al tema del rispetto e della parità di genere."
+    },
+    {
+      "id": "9",
+      "title": "Caporalato e lavoro nero, mozione Nobili (AVS): \"In crescita nelle Marche, serve un piano regionale\"",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": "Il consigliere regionale Andrea Nobili (Alleanza Verdi Sinistra) presenta una mozione contro caporalato e lavoro nero. I dati mostrano una crescita del fenomeno nelle Marche. La mozione chiede alla Giunta regionale un piano straordinario di controlli e tutele per i lavoratori agricoli."
+    },
+    {
+      "id": "10",
+      "title": "Marche più sicure dai roghi: approvato il Piano AIB 2026 per la prevenzione incendi boschivi",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": "La Regione Marche ha approvato il Piano AIB 2026 per la prevenzione e la lotta attiva contro gli incendi boschivi. Il piano prevede il rafforzamento dei presidi territoriali, nuove convenzioni con i vigili del fuoco e l'impiego di droni per il monitoraggio delle aree a rischio."
+    },
+    {
+      "id": "11",
+      "title": "Ascoli travolgente: 3-0 al Brescia e ritorno in Serie B!",
+      "date": "2026-06-07",
+      "category": "Sport",
+      "source": "Vivere Jesi",
+      "abstract": "L'Ascoli Calcio vince 3-0 contro il Brescia e conquista la promozione in Serie B. Una partita dominata dai bianconeri, con una tripletta che ha fatto esplodere di gioia i tifosi al Del Duca. La squadra torna in cadetteria dopo un solo anno di purgatorio."
+    }
+  ],
   "prices": []
 }
