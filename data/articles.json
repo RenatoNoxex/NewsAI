@@ -2,8 +2,8 @@
   "meta": {
     "title": "Jesi - Notizie dalla Città",
     "date": "2026-06-08",
-    "generated_at": "2026-06-08T12:00:00.000000",
-    "source_file": "viverejesi.it"
+    "generated_at": "2026-06-08T20:23:32.514330+02:00",
+    "source_file": "scrape_news.py (multi-source)"
   },
   "articles": [
     {
@@ -93,6 +93,238 @@
       "category": "Sport",
       "source": "Vivere Jesi",
       "abstract": "L'Ascoli Calcio vince 3-0 contro il Brescia e conquista la promozione in Serie B. Una partita dominata dai bianconeri, con una tripletta che ha fatto esplodere di gioia i tifosi al Del Duca. La squadra torna in cadetteria dopo un solo anno di purgatorio."
+    },
+    {
+      "id": "12",
+      "title": "Presentazione del libro di Marco Omizzolo",
+      "date": "2026-06-08",
+      "category": "Cultura",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "13",
+      "title": "Prima Edison, ora il Viale. Per Jesi: \"Amministrazione...",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "14",
+      "title": "Viale, il Comune chiarisce sulla diffida e dissente da...",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "15",
+      "title": "Amazon, fisco e territorio, USB: \"I sindaci non possono...",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "16",
+      "title": "Dalla Vallesina a Bruxelles: una voce giovane per l’allargamento dell’UE",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "17",
+      "title": "Viale della Vittoria, Rete Studenti Medi: \"Fischi a 16enne...",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "18",
+      "title": "Galà di beneficenza 2026 della Croce Rossa: una serata per...",
+      "date": "2026-06-08",
+      "category": "Sociale",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "19",
+      "title": "Pallamano: Chiaravalle, il futuro è ora. Il DS Tucci indica...",
+      "date": "2026-06-08",
+      "category": "Sport",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "20",
+      "title": "Il PD allontana le critiche (e le richieste di dimissioni di Sindaco e Assessora): \"La politica come confronto\"",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "21",
+      "title": "Pace, diritti umani e dignità: il libro di Asmae Dachan per...",
+      "date": "2026-06-08",
+      "category": "Cultura",
+      "source": "Vivere Jesi",
+      "abstract": ""
+    },
+    {
+      "id": "22",
+      "title": "Fano, la polizia locale recupera bici rubata. «Denunciare è decisivo»",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "23",
+      "title": "Matelica, viola le prescrizioni e torna a spacciare: 55enne in carcere",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "24",
+      "title": "Falconara, in auto una lama di 16 centimetri: denunciato",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "25",
+      "title": "Ascoli in festa per la B, Passeri guarda al futuro: «Sta nascendo qualcosa di bello»",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "26",
+      "title": "Macerata, Parcaroli confermato sindaco con il 54,30%. Tittarelli si ferma al 45,70%",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "27",
+      "title": "Plasma, Fp Cgil: : «Confermate dal CNS ragioni per cui abbiamo aperto lo stato di agitazione. Si aumenti personale stabile»",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "28",
+      "title": "Pesaro, mosaici del Duomo 3D: ecco l&#8217;intervento di digitalizzazione",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "29",
+      "title": "Osimo, qualità del servizio idrico: Astea conferma standard di eccellenza e centra gli obiettivi Arera",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "30",
+      "title": "BeatleSenigallia 2026: 22 eventi sul mito dei Fab Four",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "31",
+      "title": "Acquaviva Picena: pirata della strada identificato e deferito dai carabinieri",
+      "date": "2026-06-08",
+      "category": "Urbanistica",
+      "source": "Centro Pagina",
+      "abstract": ""
+    },
+    {
+      "id": "32",
+      "title": "ContraGigantes: il Don Chisciotte secondo Teatro Nucleo. Un’indagine scenica tra potere, dissenso e visioni sovversive",
+      "date": "2026-06-08",
+      "category": "Cultura",
+      "source": "Leggo Password",
+      "abstract": ""
+    },
+    {
+      "id": "33",
+      "title": "La seconda tappa del “Wine concert” ospitata dal Podere Vito Cardinali di Morro d’Alba",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Leggo Password",
+      "abstract": ""
+    },
+    {
+      "id": "34",
+      "title": "Piccola Compagnia della Magnolia presenta ENRICO IV tragedia Venerdì 1 agosto 2025, ore 21.30 nell’ambito di Premio Nazionale Franco Enriquez – città di Sirolo",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Leggo Password",
+      "abstract": ""
+    },
+    {
+      "id": "35",
+      "title": "&#8220;Folli d&#8217;arte e d&#8217;amore&#8221; Festival e Premio per un Teatro Universale della Creatività",
+      "date": "2026-06-08",
+      "category": "Cultura",
+      "source": "Leggo Password",
+      "abstract": ""
+    },
+    {
+      "id": "36",
+      "title": "Saggio di fine corso all’EnriquezLab: in scena &#8220;Il treno ha fischiato di Luigi Pirandello&#8221;",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Leggo Password",
+      "abstract": ""
+    },
+    {
+      "id": "37",
+      "title": "“AperiAVIS”: le comunali AVIS unite per festeggiare la Giornata del Donatore con i giovani",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Leggo Password",
+      "abstract": ""
+    },
+    {
+      "id": "38",
+      "title": "ADRIATICA CONDOMINI: Etica e competenza al servizio dei condomini",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Leggo Password",
+      "abstract": ""
+    },
+    {
+      "id": "39",
+      "title": "Via Agraria, primi interventi di messa in sicurezza. Disposto il senso unico",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Leggo Password",
+      "abstract": ""
+    },
+    {
+      "id": "40",
+      "title": "Fiordelmondo: «Su Amazon interlocuzioni a 360 gradi».",
+      "date": "2026-06-08",
+      "category": "Attualità",
+      "source": "Leggo Password",
+      "abstract": ""
     }
   ],
   "prices": []
