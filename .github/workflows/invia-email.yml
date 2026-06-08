@@ -1,4 +1,4 @@
-# Workflow GitHub Actions - invio email riepilogo quotidiano
+ # Workflow GitHub Actions - invio email riepilogo quotidiano
 name: Invia Riepilogo Giornaliero
 
 on:
@@ -42,7 +42,19 @@ jobs:
       - name: Invia email di riepilogo
         env:
           TZ: Europe/Rome
-        run: python scripts/invia_riepilogo.py
+        run: |
+          set -x
+          python scripts/invia_riepilogo.py 2>&1 | tee output.log
+          echo "=== FINE LOG ==="
+          ls -la data/articles.json
+          python -c "import json; d=json.load(open('data/articles.json')); print('Articoli nel JSON:', len(d.get('articles',[])))"
+          
+      - name: Upload log per debug
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-debug-log
+          path: output.log
 
       - name: Log completamento
         if: always()
