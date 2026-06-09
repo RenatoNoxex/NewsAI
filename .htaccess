@@ -1,0 +1,2 @@
+# Jesi News - Disabilita rewrite per servire file statici
+RewriteEngine Off
