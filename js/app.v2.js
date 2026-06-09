@@ -3,7 +3,7 @@
    ============================================================ */
 
 // ── CONFIG ──────────────────────────────────────────────────
-const DATA_URL = 'data/articles.json';
+const DATA_URL = 'data/articles.json?v=' + Date.now();
 const ARTICLES_PER_PAGE = 12;
 
 const CATEGORIES = [
@@ -33,10 +33,16 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   try {
-    const resp = await fetch(DATA_URL);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    allData = await resp.json();
-    articles = allData.articles || [];
+    // Prova prima i dati inline (embed nel HTML, bypass cache proxy)
+    if (typeof window.__JESI_DATA__ === 'object' && window.__JESI_DATA__) {
+      allData = window.__JESI_DATA__;
+      articles = allData.articles || [];
+    } else {
+      const resp = await fetch(DATA_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      allData = await resp.json();
+      articles = allData.articles || [];
+    }
     const dateSet = new Set(articles.map(a => a.date).filter(Boolean));
     availableDates = [...dateSet].sort().reverse();
     if (availableDates.length > 0) selectedDate = availableDates[0];
@@ -69,14 +75,15 @@ function renderDateNavigator(container, dates, selected, onChange) {
 function getDayName(dateStr) { const d = new Date(dateStr + 'T12:00:00'); const giorni = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']; return giorni[d.getDay()]; }
 
 function renderHome() {
-  if (!articles.length) return; const main = $('#main-content'); if (!main) return;
+  const main = $('#main-content'); if (!main) return;
+  if (!articles.length) { main.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:20px;">📭</div><h2>Nessun articolo disponibile</h2><p style="color:#666;margin-top:10px;">Non ci sono articoli da mostrare. Il file articles.json potrebbe essere vuoto.</p></div>'; return; }
   const byDate = {}; articles.forEach(a => { if (!a.date) return; if (!byDate[a.date]) byDate[a.date] = []; byDate[a.date].push(a); });
   const dateKeys = Object.keys(byDate).sort().reverse();
   const dateToShow = (selectedDate && byDate[selectedDate]) ? selectedDate : dateKeys[0];
   const navContainer = document.getElementById('date-nav');
   if (navContainer) renderDateNavigator(navContainer, dateKeys, dateToShow, (date) => { selectedDate = date; renderHome(); });
   let html = ''; const dayArticles = byDate[dateToShow] || [];
-  if (dayArticles.length > 0) { const hero = dayArticles[0]; const catInfo = CATEGORY_MAP[hero.category.toLowerCase()] || {}; html += `<article class="hero-article"><div class="hero-content"><span class="cat-badge" style="background:${catInfo.color || '#C0392B'}">${catInfo.emoji || ''} ${hero.category}</span><h1><a href="article.html?id=${hero.id}">${escapeHtml(hero.title)}</a></h1><p>${escapeHtml(hero.abstract)}</p><div class="hero-meta"><span>📅 ${formatDate(hero.date)}</span><span>📰 ${escapeHtml(hero.source || 'Fonte sconosciuta')}</span></div></div></article>`; }
+  if (dayArticles.length > 0) { const hero = dayArticles[0]; const catInfo = CATEGORY_MAP[hero.category.toLowerCase()] || {}; const fonteHero = hero.url ? `<a href="${escapeHtml(hero.url)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">📰 ${escapeHtml(hero.source || 'Fonte sconosciuta')}</a>` : `📰 ${escapeHtml(hero.source || 'Fonte sconosciuta')}`; html += `<article class="hero-article"><div class="hero-content"><span class="cat-badge" style="background:${catInfo.color || '#C0392B'}">${catInfo.emoji || ''} ${hero.category}</span><h1><a href="article.html?id=${hero.id}">${escapeHtml(hero.title)}</a></h1><p>${escapeHtml(hero.abstract)}</p><div class="hero-meta"><span>📅 ${formatDate(hero.date)}</span><span>${fonteHero}</span></div></div></article>`; }
   const parts = dateToShow.split('-'); const dateLabel = `${parts[2]}/${parts[1]}/${parts[0]}`; const dayName = getDayName(dateToShow); const totalDay = dayArticles.length;
   html += `<section class="day-block"><div class="day-header"><div class="day-title"><span class="day-badge">${dayName}</span><h2>${dateLabel}</h2><span class="day-count">${totalDay} articoli</span></div></div>`;
   const byCat = {}; dayArticles.forEach(a => { const cat = a.category || 'Altro'; if (!byCat[cat]) byCat[cat] = []; byCat[cat].push(a); });
