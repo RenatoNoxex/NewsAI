@@ -232,15 +232,18 @@ def genera_riepilogo_html(data, giorni=1):
             if len(abstract) > 200:
                 abstract = abstract[:197] + "..."
 
+            url_articolo = a.get("url", "")
+            title_display = a.get("title", "")
             html_parts.append(f"""
                     <tr>
                         <td style="background-color: #ffffff; padding: 16px 20px; border-bottom: 1px solid #e8e8e8;">
-                            <strong style="font-size: 16px; color: #1a1a2e;">{a.get("title", "")}</strong>
+                            {"<a href=\"" + url_articolo + "\" style=\"color: #1a1a2e; text-decoration: none;\" target=\"_blank\" rel=\"noopener\">" if url_articolo else ""}<strong style="font-size: 16px; color: #1a1a2e;">{title_display}</strong>{"</a>" if url_articolo else ""}
                             <p style="margin: 6px 0 0; font-size: 13px; color: #666666; line-height: 1.4;">
                                 {abstract}
                             </p>
                             <div style="margin-top: 8px; font-size: 11px; color: #999999;">
                                 {a.get("date", "")} &middot; {a.get("source", "")}
+                                {" &middot; <a href=\"" + url_articolo + "\" style=\"color: #C0392B; text-decoration: none;\" target=\"_blank\" rel=\"noopener\">Leggi l'articolo &rarr;</a>" if url_articolo else ""}
                             </div>
                         </td>
                     </tr>

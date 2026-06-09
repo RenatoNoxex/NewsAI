@@ -112,7 +112,11 @@ function renderArticle() {
   main.innerHTML = html;
 }
 
-function renderCard(article, catInfo) { catInfo = catInfo || CATEGORY_MAP[article.category.toLowerCase()] || {}; return `<div class="news-card" onclick="window.location='article.html?id=${article.id}'"><div class="card-body"><span class="cat-badge" style="background:${catInfo.color || '#C0392B'}">${catInfo.emoji || ''} ${article.category}</span><h3><a href="article.html?id=${article.id}">${escapeHtml(article.title)}</a></h3><div class="excerpt">${escapeHtml(article.abstract)}</div><div class="card-footer"><span>📅 ${formatDate(article.date)}</span><span class="source">${escapeHtml(article.source || '')}</span></div></div></div>`; }
+function renderCard(article, catInfo) { 
+  catInfo = catInfo || CATEGORY_MAP[article.category.toLowerCase()] || {}; 
+  const urlLink = article.url ? `<a href="${escapeHtml(article.url)}" target="_blank" rel="noopener" class="card-source-link" title="Leggi l'articolo originale" onclick="event.stopPropagation()" style="color:#C0392B;text-decoration:none;font-weight:600;font-size:12px;">🔗 Leggi originale</a>` : '';
+  return `<div class="news-card" onclick="window.location='article.html?id=${article.id}'"><div class="card-body"><span class="cat-badge" style="background:${catInfo.color || '#C0392B'}">${catInfo.emoji || ''} ${article.category}</span><h3><a href="article.html?id=${article.id}">${escapeHtml(article.title)}</a></h3><div class="excerpt">${escapeHtml(article.abstract)}</div><div class="card-footer"><span>📅 ${formatDate(article.date)}</span><span class="source">${escapeHtml(article.source || '')}</span>${urlLink}</div></div></div>`; 
+}
 
 function initAdmin() {
   const uploadBtn = $('#upload-btn'); const fileInput = $('#file-input'); const uploadArea = $('#upload-area');
